@@ -1,0 +1,36 @@
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/car_rental_db
+    username: tanish
+    password: your_new_password   # IMPORTANT → space after colon!
+    driver-class-name: org.postgresql.Driver
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    show-sql: true
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.PostgreSQLDialect
+
+  servlet:
+    multipart:
+      max-file-size: 10MB
+      max-request-size: 10MB
+
+server:
+  port: 8080
+
+cloudinary:
+  cloud_name: ${CLOUDINARY_CLOUD_NAME:dabepvflo}
+  api_key: ${CLOUDINARY_API_KEY:186665796711431}
+  api_secret: ${CLOUDINARY_API_SECRET:cWFVWTqnMbyhjzkY30Q1WeembQ4}
+
+jwt:
+  secret: ${JWT_SECRET:change_this_secret}
+  expirationMs: 86400000
+
+logging:
+  level:
+    org.springframework: INFO
+    org.hibernate.SQL: DEBUG
