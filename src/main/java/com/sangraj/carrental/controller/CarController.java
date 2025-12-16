@@ -2,11 +2,13 @@ package com.sangraj.carrental.controller;
 
 import com.sangraj.carrental.dto.AvailabilityRequest;
 import com.sangraj.carrental.dto.CarStatusResponse;
+import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.Car;
 import com.sangraj.carrental.service.BookingService;
 import com.sangraj.carrental.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -21,7 +23,7 @@ public class CarController {
     private CarService carService;
 
 
-
+    @PreAuthorize("hasRole('ADMIN')")
     @PostMapping(value = "/add", consumes = "multipart/form-data")
     public ResponseEntity<Car> addCar(@RequestParam String brand,
                                       @RequestParam String model ,
@@ -45,7 +47,7 @@ public class CarController {
 
     }
 
-    @GetMapping
+    @GetMapping("/all")
     public List<Car> getAllCars() {
         return carService.getAllCars();
     }

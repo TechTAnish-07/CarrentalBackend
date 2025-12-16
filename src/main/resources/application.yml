@@ -2,7 +2,7 @@ spring:
   datasource:
     url: jdbc:postgresql://localhost:5432/car_rental_db
     username: tanish
-    password: your_new_password   # IMPORTANT → space after colon!
+    password: your_new_password
     driver-class-name: org.postgresql.Driver
 
   jpa:
@@ -18,19 +18,30 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
+  mail:
+    host: smtp.gmail.com
+    port: 587
+    username: patidartanish31@gmail.com
+    password: jwjs mkoe sxpv sjdi   # 👈 IMPORTANT
+    properties:
+      mail:
+        smtp:
+          auth: true
+          starttls:
+            enable: true
+
 server:
   port: 8080
 
 cloudinary:
-  cloud_name: ${CLOUDINARY_CLOUD_NAME:dabepvflo}
-  api_key: ${CLOUDINARY_API_KEY:186665796711431}
-  api_secret: ${CLOUDINARY_API_SECRET:cWFVWTqnMbyhjzkY30Q1WeembQ4}
-
+            cloud_name: ${CLOUDINARY_CLOUD_NAME:dabepvflo}
+            api_key: ${CLOUDINARY_API_KEY:186665796711431}
+            api_secret: ${CLOUDINARY_API_SECRET:cWFVWTqnMbyhjzkY30Q1WeembQ4}
 jwt:
-  secret: ${JWT_SECRET:change_this_secret}
-  expirationMs: 86400000
+  secret: ${JWT_SECRET:THIS_IS_A_LONG_SECRET_KEY_1234567890_ABCD}
+  expiration-ms: 86400000   # 24 hours
 
 logging:
   level:
-    org.springframework: INFO
-    org.hibernate.SQL: DEBUG
+    com.sangraj.carrental.config.JwtAuthFilter: DEBUG
+    org.springframework.security: DEBUG
