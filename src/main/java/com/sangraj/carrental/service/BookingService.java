@@ -196,9 +196,9 @@ public class BookingService {
                         b.getCar().getPricePerDay(),
                         b.getUser().getEmail(),
                         b.getUser().getDisplayName(),
-                        b.getStartDateTime().toLocalDate(),
+                        b.getStartDateTime(),
                         b.getEndDateTime() != null
-                                ? b.getEndDateTime().toLocalDate()
+                                ? b.getEndDateTime()
                                 : null,
                         b.getTotalAmount(),
                         b.getStatus()
