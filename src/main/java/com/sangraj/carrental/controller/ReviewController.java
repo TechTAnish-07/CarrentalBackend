@@ -1,40 +1,55 @@
 package com.sangraj.carrental.controller;
 
+import com.sangraj.carrental.dto.ReviewRequest;
+import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.ReviewEntity;
-import com.sangraj.carrental.service.UserReviewService;
-import org.apache.tomcat.util.net.openssl.ciphers.Authentication;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpStatus;
+import com.sangraj.carrental.repository.ReviewSaveRepository;
+import com.sangraj.carrental.repository.UserRepository;
+import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Sort;
 import org.springframework.http.ResponseEntity;
-import org.springframework.security.core.parameters.P;
+import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
+import java.time.LocalDateTime;
 import java.util.List;
 
 @RestController
-@RequestMapping("/Reviews")
+@RequestMapping("/api/user/reviews")
+@RequiredArgsConstructor
 public class ReviewController {
-    @Autowired
-    public UserReviewService userReviewService;
 
+    private final ReviewSaveRepository reviewRepo;
+    private final UserRepository userRepository;
     @PostMapping
-    public ResponseEntity<ReviewEntity> addReview(
-            @RequestBody ReviewEntity review,
+    public ResponseEntity<?> addReview(
+            @RequestBody ReviewRequest request,
             Authentication authentication
     ) {
-        // Username extracted from JWT
-        String username = authentication.name();
+        String email = authentication.getName();
+
+        AppUser user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found"));
+
+        String username =
+                (request.name() != null && !request.name().isBlank())
+                        ? request.name()
+                        : user.getDisplayName();   // ✅ FIX HERE
+
+        ReviewEntity review = new ReviewEntity();
+        review.setComment(request.comment());
+        review.setRating(request.rating());
         review.setUsername(username);
+        review.setCreatedAt(LocalDateTime.now());
 
-        ReviewEntity savedReview = userReviewService.saveReview(review);
-        return new ResponseEntity<>(savedReview, HttpStatus.CREATED);
+        reviewRepo.save(review);
+
+        return ResponseEntity.ok("Review added successfully");
     }
+
+
     @GetMapping
-    public ResponseEntity<List<ReviewEntity>> getALLReview(){
-        return ResponseEntity.ok(
-                userReviewService.getAllReviews()
-        );
+    public List<ReviewEntity> getReviews(Authentication authentication) {
+        return reviewRepo.findAll(Sort.by(Sort.Direction.DESC, "createdAt"));
     }
-
-
 }

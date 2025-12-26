@@ -1,10 +1,7 @@
 package com.sangraj.carrental.controller;
 
-import com.sangraj.carrental.dto.AvailabilityRequest;
 import com.sangraj.carrental.dto.CarStatusResponse;
-import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.Car;
-import com.sangraj.carrental.service.BookingService;
 import com.sangraj.carrental.service.CarService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;

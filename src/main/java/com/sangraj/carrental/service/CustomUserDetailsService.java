@@ -1,6 +1,7 @@
 package com.sangraj.carrental.service;
 
 import com.sangraj.carrental.repository.UserRepository;
+import com.sangraj.carrental.repository.VarificationTokenRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
@@ -11,26 +12,31 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private final UserRepository userRepo;
-
-    public CustomUserDetailsService(UserRepository userRepo) {
+    private final VarificationTokenRepository varificationTokenRepository;
+    public CustomUserDetailsService(UserRepository userRepo, VarificationTokenRepository varificationTokenRepository) {
         this.userRepo = userRepo;
+        this.varificationTokenRepository = varificationTokenRepository;
     }
 
     @Override
-    public UserDetails loadUserByUsername(String email) throws UsernameNotFoundException {
+    public UserDetails loadUserByUsername(String email)
+            throws UsernameNotFoundException {
 
-        // Fetch user by email from DB
-       AppUser user = userRepo.findByEmail(email)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
-
-
-        // Convert AppUser to Spring Security UserDetails
+        AppUser user = userRepo.findByEmail(email)
+                .orElseThrow(() ->
+                        new UsernameNotFoundException("User not found with email: " + email));
+        System.out.println("LOGIN → enabled = " + user.isEnabled());
         return new org.springframework.security.core.userdetails.User(
                 user.getEmail(),
                 user.getPassword(),
-                List.of(() -> user.getRole().name()) // ROLE_USER or ROLE_ADMIN
+                user.isEnabled(),
+                true,
+                true,
+                true,
+                List.of(() -> user.getRole().name())
         );
     }
+
     public UserDetails save(AppUser user){
         AppUser savedUser = userRepo.save(user);
         return new org.springframework.security.core.userdetails.User(
@@ -39,4 +45,5 @@ public class CustomUserDetailsService implements UserDetailsService {
                 List.of(() -> savedUser.getRole().name())
         );
     }
+
 }

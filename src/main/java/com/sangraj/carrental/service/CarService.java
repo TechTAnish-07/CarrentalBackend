@@ -1,6 +1,5 @@
 package com.sangraj.carrental.service;
 import com.sangraj.carrental.dto.CarStatusResponse;
-import com.sangraj.carrental.entity.Booking;
 import com.sangraj.carrental.entity.Car;
 import com.sangraj.carrental.repository.BookingRepository;
 import com.sangraj.carrental.repository.CarRepository;
@@ -88,12 +87,12 @@ public class CarService {
         List<Car> availableCars = new ArrayList<>();
 
         for (Car car : cars) {
-            List<Booking> clashes = bookingRepo.findOverlappingBookings(
+            int clashes = bookingRepo.countOverlappingActiveBookings(
                     car.getId(), start, end
             );
-            if (clashes.isEmpty()) {
-                availableCars.add(car);
-            }
+           if(clashes < car.getQuantity()){
+             availableCars.add(car);
+           }
         }
 
         return availableCars; 

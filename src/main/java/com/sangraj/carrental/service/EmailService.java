@@ -17,7 +17,8 @@ public class EmailService {
     this.varificationTokenRepository = varificationTokenRepository;
   }
   public void sendVerificationLink(AppUser user) {
-
+    varificationTokenRepository.deleteByUser(user);
+    varificationTokenRepository.flush();
     String token = TokenUTIL.generateToken();
 
     VarificationToken verificationToken = new VarificationToken();
@@ -26,7 +27,8 @@ public class EmailService {
     verificationToken.setExpiryDate(TokenUTIL.expiryTime());
 
     varificationTokenRepository.save(verificationToken);
-
+    System.out.println("token generated is ");
+    System.out.println(token);
     String link = "http://localhost:8080/auth/verify?token=" + token;
 
     SimpleMailMessage mail = new SimpleMailMessage();
@@ -40,5 +42,6 @@ public class EmailService {
     );
 
     javaMailSender.send(mail);
+
   }
 }

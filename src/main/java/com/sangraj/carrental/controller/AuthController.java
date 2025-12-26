@@ -1,28 +1,30 @@
 package com.sangraj.carrental.controller;
 
-import com.sangraj.carrental.dto.AuthResponse;
-import com.sangraj.carrental.dto.LoginRequest;
-import com.sangraj.carrental.dto.RegisterRequest;
-import com.sangraj.carrental.dto.UserResponse;
+import com.sangraj.carrental.dto.*;
 import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.Role;
 import com.sangraj.carrental.entity.VarificationToken;
+import com.sangraj.carrental.repository.UserProfileRepository;
 import com.sangraj.carrental.repository.UserRepository;
 import com.sangraj.carrental.repository.VarificationTokenRepository;
 import com.sangraj.carrental.service.EmailService;
+import com.sangraj.carrental.service.ImageUploadService;
 import com.sangraj.carrental.service.JwtService;
 import com.sangraj.carrental.service.CustomUserDetailsService;
 import jakarta.servlet.http.Cookie;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
+import jakarta.transaction.Transactional;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
+import org.springframework.security.core.Authentication;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
-
 import java.time.LocalDateTime;
 import java.util.Map;
+import java.util.Optional;
 
 @RestController
 @RequestMapping("/auth")
@@ -35,12 +37,16 @@ public class AuthController {
     private final CustomUserDetailsService userDetailsService;
     private final VarificationTokenRepository varificationTokenRepository;
     private final EmailService emailService;
-
+    private final UserProfileRepository userProfileRepository;
+    private final ImageUploadService imageUploadService;
     public AuthController(UserRepository repo,
                           AuthenticationManager authManager,
                           PasswordEncoder encoder,
                           JwtService jwtService,
-                          CustomUserDetailsService userDetailsService , VarificationTokenRepository varificationTokenRepository, EmailService emailService) {
+                          CustomUserDetailsService userDetailsService ,
+                          VarificationTokenRepository varificationTokenRepository,
+                          EmailService emailService,
+                          UserProfileRepository userProfileRepository, ImageUploadService imageUploadService) {
         this.repo = repo;
         this.authManager = authManager;
         this.encoder = encoder;
@@ -48,40 +54,74 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
         this.varificationTokenRepository = varificationTokenRepository;
         this.emailService = emailService;
+        this.userProfileRepository = userProfileRepository;
+        this.imageUploadService = imageUploadService;
+
     }
 
     @PostMapping("/register")
+    @Transactional
     public ResponseEntity<?> register(@RequestBody RegisterRequest req) {
 
-        if (repo.existsByEmail(req.email())) {
-            return ResponseEntity
-                    .badRequest()
-                    .body(null); // frontend handles this
+        Optional<AppUser> existingOpt = repo.findByEmail(req.email());
+
+        // CASE 1: User already exists
+        if (existingOpt.isPresent()) {
+            AppUser existingUser = existingOpt.get();
+            System.out.println("user already existed");
+            // Already verified → block
+            if (existingUser.isEnabled()) {
+                System.out.println("is enabled");
+                return ResponseEntity
+                        .status(HttpStatus.CONFLICT)
+                        .body("Email already registered");
+            }
+            System.out.println("user existed but is not enabled");
+            emailService.sendVerificationLink(existingUser);
+
+            return ResponseEntity.ok(
+                    "Verification email resent. Please check your inbox."
+            );
         }
+
+        // CASE 2: New user
         AppUser user = new AppUser();
         user.setEmail(req.email());
         user.setDisplayName(req.username());
         user.setPassword(encoder.encode(req.password()));
         user.setRole(Role.ROLE_USER);
-
         user.setEnabled(false);
-        repo.save(user);
-         emailService.sendVerificationLink(user);
-         return ResponseEntity.ok("Registration successful. Please verify your email to login.");
 
+        user = repo.save(user); // ✅ save ONCE
 
+        emailService.sendVerificationLink(user);
 
+        return ResponseEntity.ok(
+                "Registration successful. Please verify your email."
+        );
     }
+
 
 
     @GetMapping("/verify")
     public ResponseEntity<String> verifyEmail(@RequestParam String token) {
 
-        VarificationToken vt = varificationTokenRepository.findByToken(token)
-                .orElseThrow(() -> new RuntimeException("Invalid token"));
+        Optional<VarificationToken> optionalToken =
+                varificationTokenRepository.findByToken(token);
+
+        if (optionalToken.isEmpty()) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Invalid or already used verification token");
+        }
+
+        VarificationToken vt = optionalToken.get();
 
         if (vt.getExpiryDate().isBefore(LocalDateTime.now())) {
-            throw new RuntimeException("Token expired");
+            varificationTokenRepository.delete(vt);
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body("Verification token expired");
         }
 
         AppUser user = vt.getUser();
@@ -102,6 +142,13 @@ public class AuthController {
         );
 
        AppUser user = repo.findByEmail(req.email()).orElseThrow();
+        if (!user.isEnabled()) {
+            return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(Map.of(
+                            "message", "Please verify your email before logging in."
+                    ));
+        }
 
         String accessToken = jwtService.generateToken(
                 user.getEmail(),
@@ -183,4 +230,5 @@ public class AuthController {
                 )
         );
     }
+
 }

@@ -1,10 +1,8 @@
 package com.sangraj.carrental.entity;
 
 import com.fasterxml.jackson.annotation.JsonIgnore;
-import com.sangraj.carrental.entity.Role;
 import jakarta.persistence.*;
 import lombok.Data;
-import lombok.NoArgsConstructor;
 import lombok.AllArgsConstructor;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.GrantedAuthority;
@@ -26,7 +24,9 @@ public class AppUser implements UserDetails {
     @Column(unique = true, nullable = false)
     private String email;
 
-    private boolean enabled = false;
+    @Column(nullable = false)
+    private Boolean enabled;
+
 
     @Column(name = "displayname" ,nullable = false)
     private String displayName;
@@ -36,17 +36,19 @@ public class AppUser implements UserDetails {
 
     @Enumerated(EnumType.STRING)
     private Role role;
-
+    @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    private UserProfile profile;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore
     private List<Booking> bookings;
     public AppUser() {}
 
-    public AppUser(String email, String displayName, String password, Role role) {
+    public AppUser(String email, String displayName, String password, Role role, Boolean enabled) {
         this.email = email;
         this.displayName = displayName;
         this.password = password;
         this.role = role;
+        this.enabled = enabled;
     }
 
     // ---------- REQUIRED FOR SPRING SECURITY ----------

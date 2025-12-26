@@ -3,18 +3,19 @@ package com.sangraj.carrental.entity;
 import com.sangraj.carrental.dto.BookingStatus;
 import jakarta.persistence.*;
 import lombok.Data;
-;
+
 
 import java.time.LocalDateTime;
 
 @Entity
 @Data
+@Table(name = "booking")
 public class Booking {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private long id;
 
-
+    private String location;
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private LocalDateTime actualReturnTime;

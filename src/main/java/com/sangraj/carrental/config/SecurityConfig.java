@@ -60,18 +60,29 @@ public class SecurityConfig {
                                 "/auth/register",
                                 "/auth/login",
                                 "/auth/logout",
-                                "/auth/refresh-token"
+                                "/auth/refresh-token",
+                                "/auth/verify",
+                                "/auth/user/delete",
+                                "/auth/user-KYC/upload",
+                                "/auth/user-details"
                         ).permitAll()
 
                         // Public APIs
-                        .requestMatchers("/api/cars/**").permitAll()
-                        .requestMatchers("/Reviews").permitAll()
-                        .requestMatchers("/api/contact").permitAll()
 
+                        .requestMatchers("/api/cars/display/available").permitAll()
+                        .requestMatchers("/api/user/reviews").permitAll()
+                        .requestMatchers(HttpMethod.POST, "/api/user/reviews").hasRole("USER")
+                        .requestMatchers("/api/contact").permitAll()
+                        .requestMatchers("/api/user/booking/**").hasRole("USER")
+                        .requestMatchers("/admin/bookings/**").hasRole("ADMIN")
+                        .requestMatchers("/api/cars/display").permitAll()
+                        .requestMatchers("/api/user-detail/**").permitAll()
+                        .requestMatchers("/api/car-inspection/**").permitAll()
                         // Admin-only
                         .requestMatchers("/api/cars/add").hasRole("ADMIN")
 
                         // Everything else
+
                         .anyRequest().authenticated()
                 )
                 .sessionManagement(sm -> sm.sessionCreationPolicy(SessionCreationPolicy.STATELESS))

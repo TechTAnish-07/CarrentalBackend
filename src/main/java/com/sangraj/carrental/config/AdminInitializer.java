@@ -26,7 +26,8 @@ public class AdminInitializer {
                     adminEmail,
                     "Tanish",
                     encoder.encode("9165849391"),   // default password
-                    Role.ROLE_ADMIN
+                    Role.ROLE_ADMIN,
+                    true
             );
 
             repo.save(admin);
