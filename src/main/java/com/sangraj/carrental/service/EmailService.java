@@ -29,17 +29,23 @@ public class EmailService {
     varificationTokenRepository.save(verificationToken);
     System.out.println("token generated is ");
     System.out.println(token);
-    String link = "http://localhost:8080/auth/verify?token=" + token;
+    String link = "https://carrentalbackend-h8b3.onrender.com/auth/verify?token=" + token;
 
     SimpleMailMessage mail = new SimpleMailMessage();
     mail.setTo(user.getEmail());
     mail.setSubject("Verify your email");
     mail.setText(
-            "Hello " + user.getUsername() + ",\n\n" +
-                    "Please verify your email by clicking the link below:\n" +
+            "Hi " + user.getUsername() + " 🚀\n\n" +
+                    "Thanks for signing up for SAngRaj Rentals — your journey starts here! 🛣️\n\n" +
+                    "Just one quick pit stop before you’re good to go 👇\n\n" +
+                    "🔗 Verify your email:\n" +
                     link + "\n\n" +
-                    "This link will expire in 30 minutes."
+                    "This link is valid for 30 minutes. After that, it disappears faster than a rented car on a highway 😄\n\n" +
+                    "Didn’t create an account? No worries — just ignore this email.\n\n" +
+                    "Cheers,\n" +
+                    "SAngRaj Rentals Team 🚗"
     );
+
 
     javaMailSender.send(mail);
 
