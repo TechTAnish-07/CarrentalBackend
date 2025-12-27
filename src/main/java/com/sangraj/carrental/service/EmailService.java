@@ -18,8 +18,9 @@ public class EmailService {
   private final VarificationTokenRepository tokenRepo;
   private final UserRepository userRepo;
 
-  @Value("${app.backend-url}")
+  @Value("${app.backend-url:https://carrentalbackend-h8b3.onrender.com}")
   private String backendUrl;
+
 
   public EmailService(JavaMailSender mailSender,
                       VarificationTokenRepository tokenRepo,
