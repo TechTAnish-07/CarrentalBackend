@@ -23,4 +23,5 @@ public class VarificationToken  {
     @Column(nullable = false)
     private LocalDateTime expiryDate;
 
+
 }

@@ -6,30 +6,38 @@ import com.sangraj.carrental.entity.VarificationToken;
 import com.sangraj.carrental.repository.VarificationTokenRepository;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
 
 @Service
 public class EmailService {
-  public final JavaMailSender javaMailSender;
-  public final VarificationTokenRepository varificationTokenRepository;
-  public EmailService(JavaMailSender javaMailSender , VarificationTokenRepository varificationTokenRepository){
+
+  private final JavaMailSender javaMailSender;
+  private final VarificationTokenRepository varificationTokenRepository;
+
+  public EmailService(JavaMailSender javaMailSender,
+                      VarificationTokenRepository varificationTokenRepository) {
     this.javaMailSender = javaMailSender;
     this.varificationTokenRepository = varificationTokenRepository;
   }
+  @Async
   public void sendVerificationLink(AppUser user) {
+
+    // delete old tokens by userId (IMPORTANT)
     varificationTokenRepository.deleteByUser(user);
     varificationTokenRepository.flush();
+
     String token = TokenUTIL.generateToken();
 
     VarificationToken verificationToken = new VarificationToken();
     verificationToken.setToken(token);
-    verificationToken.setUser(user);
+    verificationToken.setUser(user);   // store ID, not entity
     verificationToken.setExpiryDate(TokenUTIL.expiryTime());
 
     varificationTokenRepository.save(verificationToken);
-    System.out.println("token generated is ");
-    System.out.println(token);
-    String link = "https://carrentalbackend-h8b3.onrender.com/auth/verify?token=" + token;
+
+    String link =
+            "https://carrentalbackend-h8b3.onrender.com/auth/verify?token=" + token;
 
     SimpleMailMessage mail = new SimpleMailMessage();
     mail.setTo(user.getEmail());
@@ -40,14 +48,11 @@ public class EmailService {
                     "Just one quick pit stop before you’re good to go 👇\n\n" +
                     "🔗 Verify your email:\n" +
                     link + "\n\n" +
-                    "This link is valid for 30 minutes. After that, it disappears faster than a rented car on a highway 😄\n\n" +
-                    "Didn’t create an account? No worries — just ignore this email.\n\n" +
+                    "This link is valid for 30 minutes.\n\n" +
                     "Cheers,\n" +
                     "SAngRaj Rentals Team 🚗"
     );
 
-
     javaMailSender.send(mail);
-
   }
 }
