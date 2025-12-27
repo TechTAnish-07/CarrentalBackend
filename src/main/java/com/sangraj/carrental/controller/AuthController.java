@@ -236,7 +236,7 @@ public class AuthController {
 
         SimpleMailMessage mail = new SimpleMailMessage();
         mail.setFrom("patidartanish31@gmail.com");
-        mail.setTo("YOUR_OTHER_EMAIL@gmail.com");
+        mail.setTo("patidar29tanish@gmail.com");
         mail.setSubject("Brevo Test");
         mail.setText("If you got this, SMTP works.");
 
