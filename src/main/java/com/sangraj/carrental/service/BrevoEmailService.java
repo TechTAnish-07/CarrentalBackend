@@ -19,8 +19,9 @@ public class BrevoEmailService implements EmailService {
     @Value("${BREVO_API_KEY}")
     private String apiKey;
 
-    @Value("${app.backend-url}")
+    @Value("${app.backend-url:https://carrentalbackend-h8b3.onrender.com}")
     private String backendUrl;
+
 
     private final RestTemplate restTemplate = new RestTemplate();
     private final UserRepository userRepo;

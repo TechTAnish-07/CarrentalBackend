@@ -21,18 +21,6 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-  spring:
-    mail:
-      host: smtp-relay.brevo.com
-      port: 587
-      username: 9ed8b1001@smtp-brevo.com
-      password: ${BREVO_SMTP_KEY}
-      properties:
-        mail:
-          smtp:
-            auth: true
-            starttls:
-              enable: true
 
   app:
     backend-url: https://carrentalbackend-h8b3.onrender.com
