@@ -16,6 +16,8 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -228,5 +230,19 @@ public class AuthController {
                 )
         );
     }
+    public JavaMailSender javaMailSender;
+    @GetMapping("/test-mail")
+    public String testMail() {
+
+        SimpleMailMessage mail = new SimpleMailMessage();
+        mail.setFrom("patidartanish31@gmail.com");
+        mail.setTo("YOUR_OTHER_EMAIL@gmail.com");
+        mail.setSubject("Brevo Test");
+        mail.setText("If you got this, SMTP works.");
+
+        javaMailSender.send(mail);
+        return "sent";
+    }
+
 
 }
