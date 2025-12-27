@@ -74,7 +74,7 @@ public class BrevoEmailService implements EmailService {
 
         body.put("sender", Map.of(
                 "name", "SAngRaj Rentals",
-                "email", "no-reply@smtp-brevo.com"
+                "email", "patidartanish31@gmail.com"
         ));
 
         body.put("to", List.of(
