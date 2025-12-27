@@ -9,9 +9,15 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
 import org.springframework.stereotype.Service;
+import org.springframework.web.client.HttpClientErrorException;
 import org.springframework.web.client.RestTemplate;
+
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class BrevoEmailService implements EmailService {
@@ -61,30 +67,54 @@ public class BrevoEmailService implements EmailService {
 
         HttpHeaders headers = new HttpHeaders();
         headers.setContentType(MediaType.APPLICATION_JSON);
+        headers.setAccept(List.of(MediaType.APPLICATION_JSON));
         headers.set("api-key", apiKey);
 
-        String body = """
-        {
-          "sender": {
-            "name": "SAngRaj Rentals",
-            "email": "no-reply@smtp-brevo.com"
-          },
-          "to": [{
-            "email": "%s",
-            "name": "%s"
-          }],
-          "subject": "Verify your email – SAngRaj Rentals 🚗",
-          "htmlContent": "<p>Hi %s 👋</p>
-                          <p>Welcome to <b>SAngRaj Rentals</b>.</p>
-                          <p>Click below to verify your email:</p>
-                          <p><a href='%s'>Verify Email</a></p>
-                          <p>This link expires in 30 minutes.</p>"
+        Map<String, Object> body = new HashMap<>();
+
+        body.put("sender", Map.of(
+                "name", "SAngRaj Rentals",
+                "email", "no-reply@smtp-brevo.com"
+        ));
+
+        body.put("to", List.of(
+                Map.of(
+                        "email", toEmail,
+                        "name", username
+                )
+        ));
+
+        body.put("subject", "Verify your email – SAngRaj Rentals 🚗");
+
+        body.put("htmlContent",
+                "<p>Hi " + username + " 👋</p>" +
+                        "<p>Welcome to <b>SAngRaj Rentals</b>.</p>" +
+                        "<p>Please verify your email by clicking below:</p>" +
+                        "<p><a href=\"" + link + "\">Verify Email</a></p>" +
+                        "<p><small>This link expires in 30 minutes.</small></p>"
+        );
+
+        HttpEntity<Map<String, Object>> request =
+                new HttpEntity<>(body, headers);
+
+        try {
+            ResponseEntity<String> response =
+                    restTemplate.postForEntity(url, request, String.class);
+
+            System.out.println("✅ Brevo response status: " + response.getStatusCode());
+            System.out.println("✅ Email sent to: " + toEmail);
+
+        } catch (HttpClientErrorException e) {
+            System.err.println("❌ Brevo rejected request");
+            System.err.println(e.getResponseBodyAsString());
+            throw e;
+
+        } catch (Exception e) {
+            System.err.println("❌ Email sending failed");
+            e.printStackTrace();
+            throw e;
         }
-        """.formatted(toEmail, username, username, link);
-
-        HttpEntity<String> request = new HttpEntity<>(body, headers);
-        restTemplate.postForEntity(url, request, String.class);
-
-        System.out.println("✅ Brevo email sent to " + toEmail);
     }
+
+
 }
