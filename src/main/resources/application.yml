@@ -35,7 +35,7 @@ spring:
               enable: true
 
   app:
-    backend-url: ${BACKEND_URL}
+    backend-url: https://carrentalbackend-h8b3.onrender.com
 
 
 cloudinary:

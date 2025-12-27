@@ -230,19 +230,7 @@ public class AuthController {
                 )
         );
     }
-    public JavaMailSender javaMailSender;
-    @GetMapping("/test-mail")
-    public String testMail() {
 
-        SimpleMailMessage mail = new SimpleMailMessage();
-        mail.setFrom("patidartanish31@gmail.com");
-        mail.setTo("patidar29tanish@gmail.com");
-        mail.setSubject("Brevo Test");
-        mail.setText("If you got this, SMTP works.");
-
-        javaMailSender.send(mail);
-        return "sent";
-    }
 
 
 }
