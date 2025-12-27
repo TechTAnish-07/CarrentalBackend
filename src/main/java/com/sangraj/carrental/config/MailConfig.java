@@ -7,20 +7,19 @@ import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.JavaMailSenderImpl;
 
 import java.util.Properties;
-
 @Configuration
 public class MailConfig {
 
-    @Value("${spring.mail.host}")
+    @Value("${spring.mail.host:smtp-relay.brevo.com}")
     private String host;
 
-    @Value("${spring.mail.port}")
+    @Value("${spring.mail.port:587}")
     private int port;
 
-    @Value("${spring.mail.username}")
+    @Value("${spring.mail.username:apikey}")
     private String username;
 
-    @Value("${spring.mail.password}")
+    @Value("${spring.mail.password:}")
     private String password;
 
     @Bean
@@ -33,10 +32,8 @@ public class MailConfig {
         mailSender.setPassword(password);
 
         Properties props = mailSender.getJavaMailProperties();
-        props.put("mail.transport.protocol", "smtp");
         props.put("mail.smtp.auth", "true");
         props.put("mail.smtp.starttls.enable", "true");
-        props.put("mail.debug", "false");
 
         return mailSender;
     }
