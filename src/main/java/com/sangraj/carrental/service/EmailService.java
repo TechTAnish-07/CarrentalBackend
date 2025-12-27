@@ -3,7 +3,9 @@ package com.sangraj.carrental.service;
 import com.sangraj.carrental.config.TokenUTIL;
 import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.VarificationToken;
+import com.sangraj.carrental.repository.UserRepository;
 import com.sangraj.carrental.repository.VarificationTokenRepository;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.scheduling.annotation.Async;
@@ -12,47 +14,62 @@ import org.springframework.stereotype.Service;
 @Service
 public class EmailService {
 
-  private final JavaMailSender javaMailSender;
-  private final VarificationTokenRepository varificationTokenRepository;
+  private final JavaMailSender mailSender;
+  private final VarificationTokenRepository tokenRepo;
+  private final UserRepository userRepo;
 
-  public EmailService(JavaMailSender javaMailSender,
-                      VarificationTokenRepository varificationTokenRepository) {
-    this.javaMailSender = javaMailSender;
-    this.varificationTokenRepository = varificationTokenRepository;
+  @Value("${app.backend-url}")
+  private String backendUrl;
+
+  public EmailService(JavaMailSender mailSender,
+                      VarificationTokenRepository tokenRepo,
+                      UserRepository userRepo) {
+    this.mailSender = mailSender;
+    this.tokenRepo = tokenRepo;
+    this.userRepo = userRepo;
   }
+
   @Async
-  public void sendVerificationLink(AppUser user) {
+  public void sendVerificationLink(Long userId) {
 
-    // delete old tokens by userId (IMPORTANT)
-    varificationTokenRepository.deleteByUser(user);
-    varificationTokenRepository.flush();
+    try {
+      AppUser user = userRepo.findById(userId)
+              .orElseThrow(() -> new RuntimeException("User not found"));
 
-    String token = TokenUTIL.generateToken();
+      // delete old token
+      tokenRepo.deleteByUser(user);
 
-    VarificationToken verificationToken = new VarificationToken();
-    verificationToken.setToken(token);
-    verificationToken.setUser(user);   // store ID, not entity
-    verificationToken.setExpiryDate(TokenUTIL.expiryTime());
+      String token = TokenUTIL.generateToken();
 
-    varificationTokenRepository.save(verificationToken);
+      VarificationToken vt = new VarificationToken();
+      vt.setToken(token);
+      vt.setUser(user);
+      vt.setExpiryDate(TokenUTIL.expiryTime());
 
-    String link =
-            "https://carrentalbackend-h8b3.onrender.com/auth/verify?token=" + token;
+      tokenRepo.save(vt);
 
-    SimpleMailMessage mail = new SimpleMailMessage();
-    mail.setTo(user.getEmail());
-    mail.setSubject("Verify your email");
-    mail.setText(
-            "Hi " + user.getUsername() + " 🚀\n\n" +
-                    "Thanks for signing up for SAngRaj Rentals — your journey starts here! 🛣️\n\n" +
-                    "Just one quick pit stop before you’re good to go 👇\n\n" +
-                    "🔗 Verify your email:\n" +
-                    link + "\n\n" +
-                    "This link is valid for 30 minutes.\n\n" +
-                    "Cheers,\n" +
-                    "SAngRaj Rentals Team 🚗"
-    );
+      String link = backendUrl + "/auth/verify?token=" + token;
 
-    javaMailSender.send(mail);
+      SimpleMailMessage mail = new SimpleMailMessage();
+      mail.setTo(user.getEmail());
+      mail.setFrom("patidartanish31@gmail.com");
+      mail.setSubject("Verify your email – SAngRaj Rentals 🚗");
+      mail.setText(
+              "Hi " + user.getUsername() + " 👋\n\n" +
+                      "Welcome to SAngRaj Rentals!\n\n" +
+                      "Please verify your email by clicking the link below:\n\n" +
+                      link + "\n\n" +
+                      "⏰ This link is valid for 30 minutes.\n\n" +
+                      "If you didn’t sign up, ignore this email.\n\n" +
+                      "— Team SAngRaj Rentals 🚗"
+      );
+
+      mailSender.send(mail);
+      System.out.println("✅ Verification email sent to " + user.getEmail());
+
+    } catch (Exception e) {
+      System.err.println("❌ EMAIL FAILED");
+      e.printStackTrace();
+    }
   }
 }

@@ -21,17 +21,21 @@ spring:
       max-file-size: 10MB
       max-request-size: 10MB
 
-  mail:
-    host: smtp.gmail.com
-    port: 587
-    username: ${MAIL_USERNAME}
-    password: ${MAIL_PASSWORD}
-    properties:
-      mail:
-        smtp:
-          auth: true
-          starttls:
-            enable: true
+  spring:
+    mail:
+      host: smtp-relay.brevo.com
+      port: 587
+      username: apikey
+      password: ${BREVO_SMTP_KEY}
+      properties:
+        mail:
+          smtp:
+            auth: true
+            starttls:
+              enable: true
+
+  app:
+    backend-url: ${BACKEND_URL}
 
 cloudinary:
   cloud_name: ${CLOUDINARY_CLOUD_NAME}

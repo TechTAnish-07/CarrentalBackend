@@ -74,7 +74,7 @@ public class AuthController {
                         .body("Email already registered");
             }
             System.out.println("user existed but is not enabled");
-            emailService.sendVerificationLink(existingUser);
+            emailService.sendVerificationLink(existingUser.getId());
 
 
             return ResponseEntity.ok(
@@ -91,7 +91,7 @@ public class AuthController {
         user.setEnabled(false);
 
         user = repo.save(user); // ✅ save ONCE
-        emailService.sendVerificationLink(user);
+        emailService.sendVerificationLink(user.getId());
 
 
         return ResponseEntity.ok(
