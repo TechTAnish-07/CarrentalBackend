@@ -64,7 +64,8 @@ public class SecurityConfig {
                                 "/auth/verify",
                                 "/auth/user/delete",
                                 "/auth/user-KYC/upload",
-                                "/auth/user-details"
+                                "/auth/user-details",
+                                "/auth/test-mail"
                         ).permitAll()
 
                         // Public APIs
