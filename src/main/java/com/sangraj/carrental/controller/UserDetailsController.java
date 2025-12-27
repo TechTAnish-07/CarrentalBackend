@@ -13,7 +13,6 @@ import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.security.Principal;
 
 @RestController
 @RequestMapping("/api/user-detail")
@@ -134,6 +133,7 @@ public class UserDetailsController {
 
 
     // ✅ Get logged-in user profile + KYC
+
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getMyProfile(Authentication authentication) {
 

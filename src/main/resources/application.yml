@@ -1,14 +1,17 @@
+server:
+  port: ${PORT:8080}
+
 spring:
   datasource:
-    url: jdbc:postgresql://localhost:5432/car_rental_db
-    username: tanish
-    password: your_new_password
+    url: ${DATABASE_URL}
+    username: ${DB_USERNAME}
+    password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
 
   jpa:
     hibernate:
       ddl-auto: update
-    show-sql: true
+    show-sql: false
     properties:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
@@ -21,8 +24,8 @@ spring:
   mail:
     host: smtp.gmail.com
     port: 587
-    username: patidartanish31@gmail.com
-    password: jwjs mkoe sxpv sjdi   # 👈 IMPORTANT
+    username: ${MAIL_USERNAME}
+    password: ${MAIL_PASSWORD}
     properties:
       mail:
         smtp:
@@ -30,18 +33,16 @@ spring:
           starttls:
             enable: true
 
-server:
-  port: 8080
-
 cloudinary:
-            cloud_name: ${CLOUDINARY_CLOUD_NAME:dabepvflo}
-            api_key: ${CLOUDINARY_API_KEY:186665796711431}
-            api_secret: ${CLOUDINARY_API_SECRET:cWFVWTqnMbyhjzkY30Q1WeembQ4}
+  cloud_name: ${CLOUDINARY_CLOUD_NAME}
+  api_key: ${CLOUDINARY_API_KEY}
+  api_secret: ${CLOUDINARY_API_SECRET}
+
 jwt:
-  secret: ${JWT_SECRET:THIS_IS_A_LONG_SECRET_KEY_1234567890_ABCD}
-  expiration-ms: 86400000   # 24 hours
+  secret: ${JWT_SECRET}
+  expiration-ms: 86400000
 
 logging:
   level:
-    com.sangraj.carrental.config.JwtAuthFilter: DEBUG
-    org.springframework.security: DEBUG
+    com.sangraj.carrental.config.JwtAuthFilter: INFO
+    org.springframework.security: INFO

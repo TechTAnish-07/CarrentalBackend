@@ -117,6 +117,8 @@ public class CarService {
             dto.setFuelType(car.getFuelType());
             dto.setSeats(car.getSeats());
             dto.setPricePerDay(car.getPricePerDay());
+            dto.setLocation(car.getLocation());
+            dto.setQuantity(car.getQuantity());
             dto.setImageUrl(car.getImageUrl());
 
             if (activeBookings >= car.getQuantity()) {
@@ -131,4 +133,16 @@ public class CarService {
         return result;
     }
 
+    public void updateQuantity(Long carId, int delta) {
+        Car car = carRepo.findById(carId)
+                .orElseThrow(() -> new RuntimeException("Car not found"));
+
+        int newQty = car.getQuantity() + delta;
+        if (newQty < 0) {
+            throw new IllegalArgumentException("Quantity cannot be negative");
+        }
+
+        car.setQuantity(newQty);
+        carRepo.save(car);
+    }
 }

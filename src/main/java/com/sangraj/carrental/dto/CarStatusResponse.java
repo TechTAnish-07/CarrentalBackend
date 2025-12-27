@@ -1,5 +1,6 @@
 package com.sangraj.carrental.dto;
 
+import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
 
 @Data
@@ -13,4 +14,6 @@ public class CarStatusResponse {
     private double pricePerDay;
     private String imageUrl;
     private String status;
+    private String location;
+    private Integer quantity;
 }

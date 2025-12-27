@@ -74,11 +74,12 @@ public class SecurityConfig {
                         .requestMatchers(HttpMethod.POST, "/api/user/reviews").hasRole("USER")
                         .requestMatchers("/api/contact").permitAll()
                         .requestMatchers("/api/user/booking/**").hasRole("USER")
-                        .requestMatchers("/admin/bookings/**").hasRole("ADMIN")
+                        .requestMatchers("/api/admin/bookings/**").hasRole("ADMIN")
                         .requestMatchers("/api/cars/display").permitAll()
                         .requestMatchers("/api/user-detail/**").permitAll()
                         .requestMatchers("/api/car-inspection/**").permitAll()
                         // Admin-only
+                        .requestMatchers("/api/cars/all").hasRole("ADMIN")
                         .requestMatchers("/api/cars/add").hasRole("ADMIN")
 
                         // Everything else

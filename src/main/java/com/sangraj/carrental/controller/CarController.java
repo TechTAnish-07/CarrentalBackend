@@ -29,6 +29,7 @@ public class CarController {
                                       @RequestParam Double pricePerDay ,
                                       @RequestParam String fuelType ,
                                       @RequestParam String location ,
+                                      @RequestParam Integer quantity,
                                       @RequestParam MultipartFile image){
         Car car = new Car();
         car.setBrand(brand);
@@ -38,6 +39,7 @@ public class CarController {
         car.setFuelType(fuelType);
         car.setPricePerDay(pricePerDay);
         car.setLocation(location);
+        car.setQuantity(quantity);
         Car savedCar = carService.addCar(car, image);
 
         return ResponseEntity.ok(savedCar);
@@ -86,6 +88,15 @@ public class CarController {
     @GetMapping("/display")
     public ResponseEntity<List<CarStatusResponse>> getCarsForDisplay() {
         return ResponseEntity.ok(carService.getAllCarsForDisplay());
+    }
+    @PutMapping("/admin/quantity")
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<?> updateCarQuantity(
+            @RequestParam Long carId,
+            @RequestParam int delta
+    ) {
+        carService.updateQuantity(carId, delta);
+        return ResponseEntity.ok().build();
     }
 
 }
