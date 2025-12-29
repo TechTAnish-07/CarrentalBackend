@@ -21,6 +21,6 @@ public class Car {
     @Column(name = "\"pricePerDay\"")
     private double pricePerDay;
     private String location;
-    private int quantity;
+    private Integer quantity;
     private String imageUrl;
 }

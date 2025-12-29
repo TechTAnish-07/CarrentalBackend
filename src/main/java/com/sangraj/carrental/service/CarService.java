@@ -48,7 +48,7 @@ public class CarService {
         String imageUrl = imageUploadService.upload(imageFile);
         car.setImageUrl(imageUrl);
 
-        car.setQuantity(1);
+//        car.setQuantity(1);
 
         return carRepo.save(car);
     }
