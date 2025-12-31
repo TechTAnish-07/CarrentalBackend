@@ -68,6 +68,8 @@ This backend handles authentication, bookings, car availability, admin operation
 ---
 
 ## 📁 Project Structure
+
+
 src/main/java/com/sangraj/carrental
 ├── config # Security, JWT, CORS configuration
 ├── controller # REST controllers
