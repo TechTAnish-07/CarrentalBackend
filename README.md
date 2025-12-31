@@ -67,17 +67,23 @@ This backend handles authentication, bookings, car availability, admin operation
 
 ---
 
-## 📁 Project Structure
+📁 Project Structure
 
+config — Security, JWT, and CORS configuration
 
-src/main/java/com/sangraj/carrental
-├── config # Security, JWT, CORS configuration
-├── controller # REST controllers
-├── entity # JPA entities
-├── repository # JPA repositories
-├── service # Business logic
-├── dto # Request & response DTOs
-└── CarrentalApplication.java
+controller — REST controllers
+
+entity — JPA entities
+
+repository — JPA repositories
+
+service — Business logic
+
+dto — Request and response DTOs
+
+CarrentalApplication.java — Main Spring Boot application class
+
+📍 Location: src/main/java/com/sangraj/carrental
 
 
 ---
