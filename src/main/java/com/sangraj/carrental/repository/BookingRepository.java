@@ -7,6 +7,7 @@ import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 
 @Repository
@@ -98,6 +99,12 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
             @Param("email") String email,
             @Param("now") LocalDateTime now
     );
+    @Query("""
+      SELECT b FROM Booking b
+      JOIN FETCH b.car
+      WHERE b.id = :bookingId
+     """)
+    Optional<Booking> findByIdWithCar(Long bookingId);
 
     @Query("""
     SELECT b

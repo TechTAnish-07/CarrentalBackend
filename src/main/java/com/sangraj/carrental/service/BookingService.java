@@ -12,6 +12,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
+import java.time.ZoneId;
 import java.util.List;
 
 @Service
@@ -61,16 +62,16 @@ public class BookingService {
 
       return saved;
     }
+    @Transactional
     public void returnCar(Long bookingId, LocalDateTime actualReturnTime) {
         LocalDateTime now = LocalDateTime.now();
-        Booking booking = bookingRepo.findById(bookingId)
+        Booking booking = bookingRepo.findByIdWithCar(bookingId)
                 .orElseThrow(() -> new RuntimeException("Booking not found"));
-
-
 
         if (booking.getStatus() != BookingStatus.BOOKED) {
             throw new RuntimeException("Car already returned or invalid booking");
         }
+
 
         if (now.isBefore(booking.getStartDateTime())) {
             throw new IllegalStateException(
@@ -78,9 +79,9 @@ public class BookingService {
             );
         }
         Car car = booking.getCar();
-
-        LocalDateTime start = booking.getStartDateTime();
         double dailyRate = car.getPricePerDay();
+        LocalDateTime start = booking.getStartDateTime();
+
         double hourlyRate = dailyRate / 24;
 
         long totalHours = java.time.Duration
