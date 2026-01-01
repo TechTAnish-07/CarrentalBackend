@@ -12,10 +12,10 @@ import java.util.List;
 public class CustomUserDetailsService implements UserDetailsService {
     @Autowired
     private final UserRepository userRepo;
-    private final VarificationTokenRepository varificationTokenRepository;
-    public CustomUserDetailsService(UserRepository userRepo, VarificationTokenRepository varificationTokenRepository) {
+
+    public CustomUserDetailsService(UserRepository userRepo) {
         this.userRepo = userRepo;
-        this.varificationTokenRepository = varificationTokenRepository;
+
     }
 
     @Override

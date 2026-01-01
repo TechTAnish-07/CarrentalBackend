@@ -9,6 +9,7 @@ import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.List;
 
@@ -26,7 +27,7 @@ public class CarController {
                                       @RequestParam String model ,
                                       @RequestParam Integer modelYear,
                                       @RequestParam Integer seats ,
-                                      @RequestParam Double pricePerDay ,
+                                      @RequestParam BigDecimal pricePerDay ,
                                       @RequestParam String fuelType ,
                                       @RequestParam String location ,
                                       @RequestParam Integer quantity,

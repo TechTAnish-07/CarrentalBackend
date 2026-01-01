@@ -1,4 +1,5 @@
 package com.sangraj.carrental.dto;
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 public record ReturnedBookingResponse(
@@ -7,11 +8,11 @@ public record ReturnedBookingResponse(
         String carName,
         String carImage,
         String fuelType,
-        double pricePerDay,
+        BigDecimal pricePerDay,
         String userEmail,
         String userName,
         LocalDateTime startDate,
         LocalDateTime endDate,
-        Double totalAmount,
+        BigDecimal totalAmount,
         BookingStatus bookingStatus
 ) {}

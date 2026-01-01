@@ -4,11 +4,9 @@ import com.sangraj.carrental.dto.*;
 import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.Role;
 import com.sangraj.carrental.entity.VarificationToken;
-import com.sangraj.carrental.repository.UserProfileRepository;
 import com.sangraj.carrental.repository.UserRepository;
 import com.sangraj.carrental.repository.VarificationTokenRepository;
 import com.sangraj.carrental.service.EmailService;
-import com.sangraj.carrental.service.ImageUploadService;
 import com.sangraj.carrental.service.JwtService;
 import com.sangraj.carrental.service.CustomUserDetailsService;
 import jakarta.servlet.http.Cookie;
@@ -16,8 +14,6 @@ import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.mail.SimpleMailMessage;
-import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -37,16 +33,14 @@ public class AuthController {
     private final CustomUserDetailsService userDetailsService;
     private final VarificationTokenRepository varificationTokenRepository;
     private final EmailService emailService;
-    private final UserProfileRepository userProfileRepository;
-    private final ImageUploadService imageUploadService;
+
     public AuthController(UserRepository repo,
                           AuthenticationManager authManager,
                           PasswordEncoder encoder,
                           JwtService jwtService,
                           CustomUserDetailsService userDetailsService ,
                           VarificationTokenRepository varificationTokenRepository,
-                          EmailService emailService,
-                          UserProfileRepository userProfileRepository, ImageUploadService imageUploadService) {
+                          EmailService emailService) {
         this.repo = repo;
         this.authManager = authManager;
         this.encoder = encoder;
@@ -54,8 +48,6 @@ public class AuthController {
         this.userDetailsService = userDetailsService;
         this.varificationTokenRepository = varificationTokenRepository;
         this.emailService = emailService;
-        this.userProfileRepository = userProfileRepository;
-        this.imageUploadService = imageUploadService;
 
     }
 

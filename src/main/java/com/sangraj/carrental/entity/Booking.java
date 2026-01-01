@@ -5,6 +5,7 @@ import jakarta.persistence.*;
 import lombok.Data;
 
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
 @Entity
@@ -19,7 +20,7 @@ public class Booking {
     private LocalDateTime startDateTime;
     private LocalDateTime endDateTime;
     private LocalDateTime actualReturnTime;
-    private Double totalAmount;
+    private BigDecimal totalAmount;
     // BOOKED, CANCELLED, COMPLETED
     @Enumerated(EnumType.STRING)
     private BookingStatus status;

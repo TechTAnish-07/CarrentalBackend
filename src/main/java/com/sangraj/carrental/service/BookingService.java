@@ -7,22 +7,23 @@ import com.sangraj.carrental.entity.Car;
 import com.sangraj.carrental.repository.BookingRepository;
 import com.sangraj.carrental.repository.CarRepository;
 import com.sangraj.carrental.repository.UserRepository;
-import jakarta.transaction.Transactional;
-import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
+import java.math.RoundingMode;
 import java.time.LocalDateTime;
-import java.time.ZoneId;
 import java.util.List;
 
 @Service
 public class BookingService {
-    @Autowired
-    private UserRepository userRepository;
+
+    private final UserRepository userRepository;
     private final BookingRepository bookingRepo;
     private final CarRepository carRepo;
 
-    public BookingService(BookingRepository bookingRepo, CarRepository carRepo) {
+    public BookingService(UserRepository userRepository,BookingRepository bookingRepo, CarRepository carRepo) {
+        this.userRepository = userRepository;
         this.bookingRepo = bookingRepo;
         this.carRepo = carRepo;
     }
@@ -79,21 +80,29 @@ public class BookingService {
             );
         }
         Car car = booking.getCar();
-        double dailyRate = car.getPricePerDay();
+        BigDecimal dailyRate = car.getPricePerDay();
+        BigDecimal hourlyRate =
+                dailyRate.divide(BigDecimal.valueOf(24), 2, RoundingMode.HALF_UP);
+
         LocalDateTime start = booking.getStartDateTime();
 
-        double hourlyRate = dailyRate / 24;
 
         long totalHours = java.time.Duration
                 .between(start, actualReturnTime)
                 .toHours();
 
-        double totalAmount;
+        BigDecimal totalAmount;
 
         if (totalHours <= 24) {
             totalAmount = dailyRate;
         } else {
-            totalAmount = dailyRate + (totalHours - 24) * hourlyRate;
+            BigDecimal extraHours =
+                    BigDecimal.valueOf(totalHours - 24);
+
+            BigDecimal extraAmount =
+                    extraHours.multiply(hourlyRate);
+
+            totalAmount = dailyRate.add(extraAmount);
         }
 
         booking.setActualReturnTime(actualReturnTime);
@@ -112,16 +121,16 @@ public class BookingService {
                 .map(b -> new AdminActiveBookingResponse(
                         b.getId(),
 
-                        // User
+
                         b.getUser().getDisplayName(),
                         b.getUser().getEmail(),
 
-                        // Car
+
                         b.getCar().getId(),
                         b.getCar().getBrand() + " " + b.getCar().getModel(),
                         b.getCar().getImageUrl(),
 
-                        // Booking
+
                         b.getStartDateTime().toLocalDate(),
                         b.getEndDateTime().toLocalDate(),
                         b.getStatus().name()

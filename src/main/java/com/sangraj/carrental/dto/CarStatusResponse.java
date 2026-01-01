@@ -1,7 +1,8 @@
 package com.sangraj.carrental.dto;
 
-import jakarta.persistence.criteria.CriteriaBuilder;
 import lombok.Data;
+
+import java.math.BigDecimal;
 
 @Data
 public class CarStatusResponse {
@@ -11,7 +12,7 @@ public class CarStatusResponse {
     private int modelYear;
     private String fuelType;
     private int seats;
-    private double pricePerDay;
+    private BigDecimal pricePerDay;
     private String imageUrl;
     private String status;
     private String location;
