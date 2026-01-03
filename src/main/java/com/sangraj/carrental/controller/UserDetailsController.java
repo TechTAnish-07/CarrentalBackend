@@ -7,6 +7,7 @@ import com.sangraj.carrental.entity.UserProfile;
 import com.sangraj.carrental.repository.UserProfileRepository;
 import com.sangraj.carrental.repository.UserRepository;
 import com.sangraj.carrental.service.ImageUploadService;
+import com.sangraj.carrental.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.Authentication;
@@ -23,7 +24,7 @@ public class UserDetailsController {
     private final UserRepository repo;
     private final UserProfileRepository userProfileRepository;
     private final ImageUploadService imageUploadService;
-
+    private final UserProfileService userProfileService;
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(Authentication authentication) {
 
@@ -71,29 +72,12 @@ public class UserDetailsController {
             @RequestParam(required = false) MultipartFile profileImage,
             Authentication authentication
     ) {
-        AppUser user = repo.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
-
-        UserProfile profile = userProfileRepository
-                .findById(user.getId())
-                .orElseGet(() -> {
-                    UserProfile p = new UserProfile();
-                    p.setUser(user);
-                    return p;
-                });
-
-        if (profileImage != null) {
-            profile.setProfileImagePath(imageUploadService.upload(profileImage));
-        }
-        if (aadhaar != null) {
-            profile.setAadhaarPath(imageUploadService.upload(aadhaar));
-        }
-        if (drivingLicense != null) {
-            profile.setDrivingLicensePath(imageUploadService.upload(drivingLicense));
-        }
-
-        userProfileRepository.save(profile);
-
+        userProfileService.uploadKyc(
+                authentication.getName(),
+                profileImage,
+                aadhaar,
+                drivingLicense
+        );
         return ResponseEntity.ok("KYC updated successfully");
     }
 
