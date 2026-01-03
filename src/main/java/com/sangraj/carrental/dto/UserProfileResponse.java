@@ -14,10 +14,11 @@ public class UserProfileResponse {
 
     private String phone;
     private String address;
+    private String imageUrl;
 
     private String aadhaarUrl;
     private String drivingLicenseUrl;
-
+    private boolean imageUploaded;
     private boolean aadhaarUploaded;
     private boolean drivingLicenseUploaded;
 }

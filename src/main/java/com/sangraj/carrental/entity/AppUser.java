@@ -37,6 +37,7 @@ public class AppUser implements UserDetails {
     @Enumerated(EnumType.STRING)
     private Role role;
     @OneToOne(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnore
     private UserProfile profile;
     @OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
     @JsonIgnore

@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 
+
 @RestController
 @RequestMapping("/api/user-detail")
 @RequiredArgsConstructor
@@ -22,7 +23,6 @@ public class UserDetailsController {
     private final UserRepository repo;
     private final UserProfileRepository userProfileRepository;
     private final ImageUploadService imageUploadService;
-
 
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(Authentication authentication) {
@@ -49,7 +49,7 @@ public class UserDetailsController {
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserProfile profile = userProfileRepository
-                .findByUser(user)
+                .findById(user.getId())
                 .orElseGet(() -> {
                     UserProfile p = new UserProfile();
                     p.setUser(user);
@@ -66,33 +66,37 @@ public class UserDetailsController {
 
     @PostMapping("/kyc")
     public ResponseEntity<?> uploadKyc(
-            @RequestParam("aadhaar") MultipartFile aadhaar,
-            @RequestParam("drivingLicense") MultipartFile drivingLicense,
+            @RequestParam(required = false) MultipartFile aadhaar,
+            @RequestParam(required = false) MultipartFile drivingLicense,
+            @RequestParam(required = false) MultipartFile profileImage,
             Authentication authentication
     ) {
-
         AppUser user = repo.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
         UserProfile profile = userProfileRepository
-                .findByUser(user)
+                .findById(user.getId())
                 .orElseGet(() -> {
                     UserProfile p = new UserProfile();
                     p.setUser(user);
                     return p;
                 });
 
-
-        String aadhaarUrl = imageUploadService.upload(aadhaar);
-        String dlUrl = imageUploadService.upload(drivingLicense);
-
-        profile.setAadhaarPath(aadhaarUrl);
-        profile.setDrivingLicensePath(dlUrl);
+        if (profileImage != null) {
+            profile.setProfileImagePath(imageUploadService.upload(profileImage));
+        }
+        if (aadhaar != null) {
+            profile.setAadhaarPath(imageUploadService.upload(aadhaar));
+        }
+        if (drivingLicense != null) {
+            profile.setDrivingLicensePath(imageUploadService.upload(drivingLicense));
+        }
 
         userProfileRepository.save(profile);
 
-        return ResponseEntity.ok("KYC uploaded successfully");
+        return ResponseEntity.ok("KYC updated successfully");
     }
+
 
     @DeleteMapping("/kyc/aadhaar")
     public ResponseEntity<?> removeAadhaar(Authentication authentication) {
@@ -100,7 +104,7 @@ public class UserDetailsController {
         AppUser user = repo.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserProfile profile = userProfileRepository.findByUser(user)
+        UserProfile profile = userProfileRepository.findById(user.getId())
                 .orElse(null);
 
         if (profile == null || profile.getAadhaarPath() == null) {
@@ -118,7 +122,7 @@ public class UserDetailsController {
         AppUser user = repo.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserProfile profile = userProfileRepository.findByUser(user)
+        UserProfile profile = userProfileRepository.findById(user.getId())
                 .orElse(null);
 
         if (profile == null || profile.getDrivingLicensePath() == null) {
@@ -140,7 +144,7 @@ public class UserDetailsController {
         AppUser user = repo.findByEmail(authentication.getName())
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
-        UserProfile profile = userProfileRepository.findByUser(user).orElse(null);
+        UserProfile profile = userProfileRepository.findById(user.getId()).orElse(null);
 
         UserProfileResponse response = new UserProfileResponse();
         response.setName(user.getDisplayName());
@@ -149,7 +153,7 @@ public class UserDetailsController {
         if (profile != null) {
             response.setPhone(profile.getPhone());
             response.setAddress(profile.getAddress());
-
+            response.setImageUrl(profile.getProfileImagePath());
             response.setAadhaarUrl(profile.getAadhaarPath());
             response.setDrivingLicenseUrl(profile.getDrivingLicensePath());
 
