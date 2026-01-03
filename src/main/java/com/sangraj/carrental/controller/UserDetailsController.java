@@ -64,6 +64,19 @@ public class UserDetailsController {
 
         return ResponseEntity.ok("Profile updated successfully");
     }
+    @PostMapping("/profile-image")
+    public ResponseEntity<?> uploadProfileImage(
+            @RequestParam("profileImage") MultipartFile profileImage,
+            Authentication authentication
+    ) {
+        userProfileService.uploadKyc(
+                authentication.getName(),
+                profileImage,
+                null,
+                null
+        );
+        return ResponseEntity.ok("Profile image uploaded");
+    }
 
     @PostMapping("/kyc")
     public ResponseEntity<?> uploadKyc(
@@ -123,28 +136,29 @@ public class UserDetailsController {
     // ✅ Get logged-in user profile + KYC
 
     @GetMapping("/me")
-    public ResponseEntity<UserProfileResponse> getMyProfile(Authentication authentication) {
+    public ResponseEntity<UserProfileResponse> getProfile(Authentication authentication) {
 
         AppUser user = repo.findByEmail(authentication.getName())
-                .orElseThrow(() -> new RuntimeException("User not found"));
+                .orElseThrow();
 
-        UserProfile profile = userProfileRepository.findById(user.getId()).orElse(null);
+        UserProfile profile = userProfileRepository
+                .findById(user.getId())
+                .orElse(null);
 
-        UserProfileResponse response = new UserProfileResponse();
-        response.setName(user.getDisplayName());
-        response.setEmail(user.getEmail());
-
-        if (profile != null) {
-            response.setPhone(profile.getPhone());
-            response.setAddress(profile.getAddress());
-            response.setImageUrl(profile.getProfileImagePath());
-            response.setAadhaarUrl(profile.getAadhaarPath());
-            response.setDrivingLicenseUrl(profile.getDrivingLicensePath());
-
-            response.setAadhaarUploaded(profile.getAadhaarPath() != null);
-            response.setDrivingLicenseUploaded(profile.getDrivingLicensePath() != null);
-        }
+        UserProfileResponse response = new UserProfileResponse(
+                user.getDisplayName(),
+                user.getEmail(),
+                profile != null ? profile.getPhone() : null,
+                profile != null ? profile.getAddress() : null,
+                profile != null ? profile.getProfileImagePath() : null,
+                profile != null ? profile.getAadhaarPath() : null,
+                profile != null ? profile.getDrivingLicensePath() : null,
+                profile != null && profile.getProfileImagePath() != null,
+                profile != null && profile.getAadhaarPath() != null,
+                profile != null && profile.getDrivingLicensePath() != null
+        );
 
         return ResponseEntity.ok(response);
     }
+
 }
