@@ -19,6 +19,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.server.ResponseStatusException;
+
 import java.time.LocalDateTime;
 import java.util.Map;
 import java.util.Optional;
@@ -127,12 +129,24 @@ public class AuthController {
 
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpServletResponse response) {
-        AppUser user = repo.findByEmail(req.email()).orElseThrow(() -> new UsernameNotFoundException(
-                "User not found"
+
+        try {
+            authManager.authenticate(
+                    new UsernamePasswordAuthenticationToken(
+                            req.email(), req.password()
+                    )
+            );
+        } catch (BadCredentialsException | UsernameNotFoundException e) {
+            return ResponseEntity
+                    .status(HttpStatus.UNAUTHORIZED)
+                    .body(Map.of("message", "Invalid email or password"));
+        }
+
+        AppUser user = repo.findByEmail(req.email()).orElseThrow(() ->
+                new ResponseStatusException(
+                HttpStatus.UNAUTHORIZED, "Invalid email or password"
         ));
-        authManager.authenticate(
-                new UsernamePasswordAuthenticationToken(req.email(), req.password())
-        );
+
 
         if (!user.isEnabled()) {
             return ResponseEntity
