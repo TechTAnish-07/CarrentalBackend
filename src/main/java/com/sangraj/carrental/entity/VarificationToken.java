@@ -2,7 +2,6 @@ package com.sangraj.carrental.entity;
 
 import jakarta.persistence.*;
 import lombok.Data;
-
 import java.time.LocalDateTime;
 
 
@@ -22,6 +21,5 @@ public class VarificationToken  {
 
     @Column(nullable = false)
     private LocalDateTime expiryDate;
-
 
 }

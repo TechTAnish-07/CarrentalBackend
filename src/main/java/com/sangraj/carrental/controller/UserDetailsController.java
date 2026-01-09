@@ -6,7 +6,6 @@ import com.sangraj.carrental.entity.AppUser;
 import com.sangraj.carrental.entity.UserProfile;
 import com.sangraj.carrental.repository.UserProfileRepository;
 import com.sangraj.carrental.repository.UserRepository;
-import com.sangraj.carrental.service.ImageUploadService;
 import com.sangraj.carrental.service.UserProfileService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,6 @@ public class UserDetailsController {
 
     private final UserRepository repo;
     private final UserProfileRepository userProfileRepository;
-    private final ImageUploadService imageUploadService;
     private final UserProfileService userProfileService;
     @DeleteMapping("/delete")
     public ResponseEntity<?> deleteAccount(Authentication authentication) {
@@ -133,7 +131,6 @@ public class UserDetailsController {
     }
 
 
-    // ✅ Get logged-in user profile + KYC
 
     @GetMapping("/me")
     public ResponseEntity<UserProfileResponse> getProfile(Authentication authentication) {

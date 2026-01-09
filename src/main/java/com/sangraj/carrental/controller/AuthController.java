@@ -16,6 +16,7 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.*;
 import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import java.time.LocalDateTime;
@@ -56,11 +57,11 @@ public class AuthController {
 
         Optional<AppUser> existingOpt = repo.findByEmail(req.email());
 
-        // CASE 1: User already exists
+
         if (existingOpt.isPresent()) {
             AppUser existingUser = existingOpt.get();
             System.out.println("user already existed");
-            // Already verified → block
+
             if (existingUser.isEnabled()) {
                 System.out.println("is enabled");
                 return ResponseEntity
@@ -76,7 +77,6 @@ public class AuthController {
             );
         }
 
-        // CASE 2: New user
         AppUser user = new AppUser();
         user.setEmail(req.email());
         user.setDisplayName(req.username());
@@ -84,7 +84,7 @@ public class AuthController {
         user.setRole(Role.ROLE_USER);
         user.setEnabled(false);
 
-        user = repo.save(user); // ✅ save ONCE
+        user = repo.save(user);
         emailService.sendVerificationLink(user.getId());
 
 
@@ -125,15 +125,15 @@ public class AuthController {
         return ResponseEntity.ok("Email verified successfully");
     }
 
-    // LOGIN
     @PostMapping("/login")
     public ResponseEntity<?> login(@RequestBody LoginRequest req, HttpServletResponse response) {
-
+        AppUser user = repo.findByEmail(req.email()).orElseThrow(() -> new UsernameNotFoundException(
+                "User not found"
+        ));
         authManager.authenticate(
                 new UsernamePasswordAuthenticationToken(req.email(), req.password())
         );
 
-       AppUser user = repo.findByEmail(req.email()).orElseThrow();
         if (!user.isEnabled()) {
             return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
