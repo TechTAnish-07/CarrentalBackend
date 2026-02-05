@@ -7,7 +7,9 @@ spring:
     username: ${DB_USERNAME}
     password: ${DB_PASSWORD}
     driver-class-name: org.postgresql.Driver
-
+    Hikari:
+      data-source-properties:
+        prepareThreshold: 0
   jpa:
     open-in-view: false
     hibernate:
@@ -17,6 +19,11 @@ spring:
       hibernate:
         dialect: org.hibernate.dialect.PostgreSQLDialect
         format_sql: false
+        temp:
+          use_jdbc_metadata_defaults: false
+        JDBC:
+          use_streams_for_binary: false
+
 
     servlet:
     multipart:
