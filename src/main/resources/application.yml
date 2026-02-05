@@ -20,7 +20,7 @@ spring:
         format_sql: false
         boot:
           allow_jdbc_metadata_access: false
-        JDBC:
+        jdbc:
           use_streams_for_binary: false
 
 
