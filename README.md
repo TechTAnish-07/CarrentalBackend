@@ -3,7 +3,7 @@
 Backend service for a **driver-less car rental platform**, built using **Spring Boot** and **PostgreSQL**.  
 This backend handles authentication, bookings, car availability, admin operations, and secure user workflows.
 
-🔗 **Live Frontend:** https://sangrajrentalll.netlify.app/
+🔗 **Live Frontend:** https://sangrajrentals.netlify.app/
 
 ---
 
