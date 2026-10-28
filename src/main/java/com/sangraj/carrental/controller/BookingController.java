@@ -9,6 +9,7 @@ import com.sangraj.carrental.service.BookingService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.Authentication;
 import org.springframework.web.bind.annotation.*;
 
@@ -38,23 +39,47 @@ public class BookingController {
     }
 
     @PostMapping("/user/booking/return/{bookingId}")
-    public ResponseEntity<?> returnCar(@PathVariable Long bookingId) {
+    public ResponseEntity<?> returnCar(
+            @PathVariable Long bookingId,
+            Authentication authentication
+    ) {
         try {
-            bookingService.returnCar(bookingId, LocalDateTime.now());
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            String userEmail = authentication.getName();
+            bookingService.returnCar(bookingId, userEmail, LocalDateTime.now());
             return ResponseEntity.ok("Car returned successfully");
-        } catch (IllegalStateException e) {
-            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
         } catch (IllegalArgumentException e) {
             return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (RuntimeException e) {
+            return ResponseEntity.badRequest().body(e.getMessage());
         }
     }
 
     @PostMapping("/user/booking/cancel/{bookingId}")
-    public ResponseEntity<?> cancelBooking(@PathVariable Long bookingId) {
+    public ResponseEntity<?> cancelBooking(
+            @PathVariable Long bookingId,
+            Authentication authentication
+    ) {
         try {
+            if (authentication == null || authentication.getName() == null) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body("User not authenticated");
+            }
+            String userEmail = authentication.getName();
             return ResponseEntity.ok(
-                    bookingService.cancelBooking(bookingId)
+                    bookingService.cancelBooking(bookingId, userEmail)
             );
+        } catch (AccessDeniedException e) {
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+        } catch (IllegalArgumentException e) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (IllegalStateException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
         } catch (RuntimeException e) {
             return ResponseEntity.badRequest().body(e.getMessage());
         }

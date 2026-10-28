@@ -102,6 +102,7 @@ public interface BookingRepository extends JpaRepository<Booking, Long> {
     @Query("""
       SELECT b FROM Booking b
       JOIN FETCH b.car
+      JOIN FETCH b.user
       WHERE b.id = :bookingId
      """)
     Optional<Booking> findByIdWithCar(Long bookingId);

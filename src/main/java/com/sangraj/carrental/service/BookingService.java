@@ -7,6 +7,7 @@ import com.sangraj.carrental.entity.Car;
 import com.sangraj.carrental.repository.BookingRepository;
 import com.sangraj.carrental.repository.CarRepository;
 import com.sangraj.carrental.repository.UserRepository;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.transaction.annotation.Transactional;
 import org.springframework.stereotype.Service;
 
@@ -64,10 +65,14 @@ public class BookingService {
       return saved;
     }
     @Transactional
-    public void returnCar(Long bookingId, LocalDateTime actualReturnTime) {
+    public void returnCar(Long bookingId, String userEmail, LocalDateTime actualReturnTime) {
         LocalDateTime now = LocalDateTime.now();
         Booking booking = bookingRepo.findByIdWithCar(bookingId)
-                .orElseThrow(() -> new RuntimeException("Booking not found"));
+                .orElseThrow(() -> new IllegalArgumentException("Booking not found with id: " + bookingId));
+
+        if (booking.getUser() == null || !booking.getUser().getEmail().equalsIgnoreCase(userEmail)) {
+            throw new AccessDeniedException("Unauthorized: You do not have permission to return this booking");
+        }
 
         if (booking.getStatus() != BookingStatus.BOOKED) {
             throw new RuntimeException("Car already returned or invalid booking");
@@ -217,12 +222,16 @@ public class BookingService {
     }
 
     @Transactional
-    public String cancelBooking(Long bookingId) {
+    public String cancelBooking(Long bookingId, String userEmail) {
 
-        Booking booking = bookingRepo.findById(bookingId)
+        Booking booking = bookingRepo.findByIdWithCar(bookingId)
                 .orElseThrow(() ->
-                        new IllegalArgumentException("Booking not found")
+                        new IllegalArgumentException("Booking not found with id: " + bookingId)
                 );
+
+        if (booking.getUser() == null || !booking.getUser().getEmail().equalsIgnoreCase(userEmail)) {
+            throw new AccessDeniedException("Unauthorized: You do not have permission to cancel this booking");
+        }
 
         LocalDateTime now = LocalDateTime.now();
 
