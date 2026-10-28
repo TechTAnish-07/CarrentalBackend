@@ -38,7 +38,7 @@ public class BookingService {
          if (user == null || user.getId() == null) {
              throw new IllegalStateException("User not authenticated");
          }
-        Car car = carRepo.findById(request.getCarId())
+        Car car = carRepo.findByIdWithLock(request.getCarId())
                 .orElseThrow(() -> new RuntimeException("Car not found"));
 
         int bookedCount = bookingRepo.countOverlappingBookings(
